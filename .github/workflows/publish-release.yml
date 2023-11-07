@@ -10,7 +10,7 @@ jobs:
     - name: Check If allowed to run
       id: check-allowed-to-run
       run: |
-        if [[ -n "${{ secrets.ENABLE_AUTO_RELEASE }}"  == "true" ]]; then
+        if [[ "${{ secrets.ENABLE_AUTO_RELEASE }}"  == "true" ]]; then
           echo "Allowed!"
           echo "::set-output name=allowed_to_run::true"          
         else
