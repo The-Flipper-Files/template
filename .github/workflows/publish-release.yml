@@ -6,7 +6,7 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: $ {{ secrets.ENABLE_AUTO_RELEASE }} == 'true'
+    if: ${{ secrets.ENABLE_AUTO_RELEASE }} == 'true'
     steps:
     - uses: actions/checkout@master
       with:
