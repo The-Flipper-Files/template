@@ -1,0 +1,47 @@
+name: "Publish Release"
+on:
+  push:
+    branches:    
+      - main
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: secrets.ENABLE_AUTO_RELEASE == 'true'
+    steps:
+    - uses: actions/checkout@master
+      with:
+        submodules: true
+    - name: Set outputs
+      id: vars
+      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+    - name: Create Draft Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.vars.outputs.sha_short }}
+        release_name: "${{ steps.vars.outputs.sha_short }}"
+        draft: true
+        prerelease: false
+    - name: Generate ZIP
+      uses: thedoctor0/zip-release@0.7.5
+      with:
+        type: 'zip'
+        filename: 'withSubmodules.zip'
+        exclusions: '*.git* *.github/workflows withSubmodules.*'
+    - name: Add ZIP to Release
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: withSubmodules.zip
+        asset_name: withsubmodules.zip
+        asset_content_type: application/zip
+    - name: Publish Release
+      uses: eregon/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
